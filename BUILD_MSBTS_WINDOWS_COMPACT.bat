@@ -47,10 +47,10 @@ python -m PyInstaller launcher.py --name MSBTS --noconfirm --clean --windowed --
   --distpath dist_win ^
   --workpath build_win\work ^
   --specpath build_win\spec ^
-  --icon src\fts\resources\msbts_app_icon.ico ^
-  --add-data "src\fts\resources;fts\resources" ^
-  --add-data "src\fts\gui\assets;fts\gui\assets" ^
-  --add-data "src\fts\gui\styles;fts\gui\styles" ^
+  --icon "%CD%\src\fts\resources\msbts_app_icon.ico" ^
+  --add-data "%CD%\src\fts\resources;fts\resources" ^
+  --add-data "%CD%\src\fts\gui\assets;fts\gui\assets" ^
+  --add-data "%CD%\src\fts\gui\styles;fts\gui\styles" ^
   --hidden-import PySide6.QtPrintSupport ^
   --hidden-import PySide6.QtSvg ^
   --collect-all pypdf
