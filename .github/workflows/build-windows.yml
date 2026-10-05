@@ -32,11 +32,11 @@ jobs:
         shell: cmd
         run: |
           echo ===== DIST =====
-          dir dist /s
+          dir dist_win /s
 
       - name: Windows-Version bereitstellen
         uses: actions/upload-artifact@v4
         with:
           name: MSBTS-1.0-Windows
-          path: dist/
+          path: dist_win/
           if-no-files-found: error
