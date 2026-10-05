@@ -1,0 +1,82 @@
+name: MSBTS Windows Installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install "pyinstaller>=6.10,<7"
+
+      - name: Build MSBTS.exe
+        shell: pwsh
+        run: |
+          python -m PyInstaller launcher.py `
+            --name MSBTS `
+            --noconfirm `
+            --clean `
+            --windowed `
+            --onefile `
+            --paths src `
+            --distpath dist_win `
+            --workpath build_win/work `
+            --specpath build_win/spec `
+            --icon src/fts/resources/msbts_app_icon.ico `
+            --add-data "src/fts/resources;fts/resources" `
+            --add-data "src/fts/gui/assets;fts/gui/assets" `
+            --add-data "src/fts/gui/styles;fts/gui/styles" `
+            --hidden-import PySide6.QtPrintSupport `
+            --hidden-import PySide6.QtSvg `
+            --collect-all pypdf
+          if (!(Test-Path "dist_win/MSBTS.exe")) { throw "MSBTS.exe wurde nicht erzeugt." }
+
+      - name: Create portable ZIP
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path MSBTS_Windows_Compact | Out-Null
+          Copy-Item dist_win/MSBTS.exe MSBTS_Windows_Compact/MSBTS.exe
+          @"
+          MSBTS 1.0 - Windows Compact
+
+          Start: MSBTS.exe doppelklicken.
+          Python ist auf dem Ziel-PC nicht erforderlich.
+          Das Paket enthaelt keine persoenlichen Turnierdaten.
+          "@ | Set-Content -Encoding UTF8 MSBTS_Windows_Compact/README.txt
+          Compress-Archive -Path MSBTS_Windows_Compact/* -DestinationPath MSBTS_1.0_WINDOWS_COMPACT.zip -Force
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build Setup.exe
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (!(Test-Path $iscc)) { $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" }
+          if (!(Test-Path $iscc)) { throw "Inno Setup Compiler wurde nicht gefunden." }
+          & $iscc MSBTS_SETUP.iss
+          if (!(Test-Path "MSBTS_1.0_Setup.exe")) { throw "Setup.exe wurde nicht erzeugt." }
+
+      - name: Upload final Windows files
+        uses: actions/upload-artifact@v4
+        with:
+          name: MSBTS-1.0-Windows
+          path: |
+            MSBTS_1.0_Setup.exe
+            MSBTS_1.0_WINDOWS_COMPACT.zip
+          if-no-files-found: error
