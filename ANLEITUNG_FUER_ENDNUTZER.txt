@@ -1,0 +1,20 @@
+MSBTS 1.0 - Installation unter Windows
+=======================================
+
+Fuer den normalen Benutzer ist KEIN Python erforderlich.
+
+1. Die Datei MSBTS_1.0_Setup.exe auf den Windows-PC kopieren/herunterladen.
+2. MSBTS_1.0_Setup.exe doppelklicken.
+3. Falls Windows SmartScreen erscheint: Nur wenn die Datei direkt aus vertrauenswuerdiger Quelle stammt, "Weitere Informationen" und danach "Trotzdem ausfuehren" waehlen.
+4. Im Installationsassistenten auf Weiter/Installieren klicken.
+5. Optional die Desktop-Verknuepfung aktiviert lassen.
+6. Nach Abschluss "MSBTS jetzt starten" aktiviert lassen oder spaeter das MSBTS-Symbol im Startmenue/auf dem Desktop anklicken.
+7. Beim ersten Start kann ein neues Turnier erstellt oder das Demoturnier verwendet werden.
+
+Deinstallation:
+Windows Einstellungen > Apps > Installierte Apps > MSBTS > Deinstallieren.
+
+Wichtig:
+- Python muss NICHT installiert werden.
+- Keine BAT-Datei und keine Kommandozeile sind fuer den Endnutzer erforderlich.
+- Persoenliche Turnierdaten sind nicht Bestandteil des Installers.

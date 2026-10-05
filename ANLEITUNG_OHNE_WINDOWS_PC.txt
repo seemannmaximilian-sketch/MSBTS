@@ -1,0 +1,58 @@
+MSBTS 1.0 - Windows-Version ohne eigenen Windows-PC bauen
+===========================================================
+
+Diese Variante benutzt einen Windows-Rechner in der GitHub-Cloud.
+Auf deinem Mac musst du weder Windows noch Python installieren.
+
+ERGEBNIS
+--------
+Nach dem Cloud-Build bekommst du:
+  1. MSBTS_1.0_Setup.exe
+  2. MSBTS_1.0_WINDOWS_COMPACT.zip
+
+Die fertige Setup.exe kann ein normaler Windows-Nutzer installieren.
+Auf dessen PC ist Python NICHT erforderlich.
+
+EINMALIGE EINRICHTUNG
+---------------------
+1. Erstelle auf github.com ein kostenloses Konto, falls noch keines vorhanden ist.
+2. Erstelle ein neues privates Repository, z. B. "MSBTS-Windows".
+3. Entpacke dieses Paket auf deinem Mac.
+4. Lade den INHALT des entpackten Ordners in das Repository hoch.
+   Wichtig: Auch der versteckte Ordner .github muss mit hochgeladen werden.
+
+BUILD STARTEN
+-------------
+1. Oeffne dein Repository bei GitHub.
+2. Klicke oben auf "Actions".
+3. Links erscheint "MSBTS Windows Installer".
+4. Oeffne diesen Workflow.
+5. Klicke auf "Run workflow" und nochmals auf den gruenen Button.
+6. Warte, bis der Lauf gruen abgeschlossen ist.
+
+FERTIGE WINDOWS-DATEI LADEN
+---------------------------
+1. Oeffne den abgeschlossenen Workflow-Lauf.
+2. Unten findest du den Bereich "Artifacts".
+3. Lade "MSBTS-1.0-Windows" herunter.
+4. Entpacke das Artifact.
+5. Darin liegen MSBTS_1.0_Setup.exe und die portable ZIP-Version.
+
+WEITERGABE
+----------
+Fuer einen normalen PC-Nutzer gibst du am besten nur
+"MSBTS_1.0_Setup.exe" weiter.
+
+Der Nutzer braucht:
+- Windows 10/11 64 Bit
+- KEIN Python
+- KEIN Inno Setup
+- KEINE Kommandozeile
+
+HINWEIS ZU WINDOWS SMARTSCREEN
+------------------------------
+Die Setup.exe ist derzeit nicht mit einem kommerziellen Code-Signing-
+Zertifikat signiert. Windows kann deshalb beim ersten Start eine
+SmartScreen-Warnung anzeigen. Das ist bei selbst erstellten Programmen
+ohne Signatur normal. Fuer eine spaetere oeffentliche Verteilung sollte
+MSBTS code-signiert werden.
