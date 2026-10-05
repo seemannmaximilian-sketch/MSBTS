@@ -1,0 +1,42 @@
+name: MSBTS Windows Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Quellcode laden
+        uses: actions/checkout@v4
+
+      - name: Python installieren
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Abhaengigkeiten installieren
+        shell: cmd
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: MSBTS fuer Windows bauen
+        shell: cmd
+        run: |
+          call BUILD_MSBTS_WINDOWS_COMPACT.bat
+
+      - name: Build-Dateien anzeigen
+        shell: cmd
+        run: |
+          echo ===== DIST =====
+          dir dist /s
+
+      - name: Windows-Version bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: MSBTS-1.0-Windows
+          path: dist/
+          if-no-files-found: error
