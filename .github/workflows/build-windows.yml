@@ -1,4 +1,4 @@
-name: MSBTS Windows Build
+name: MSBTS Windows Installer
 
 on:
   workflow_dispatch:
@@ -16,27 +16,87 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Abhaengigkeiten installieren
-        shell: cmd
+      - name: Python-Abhaengigkeiten installieren
+        shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
+          python -m pip install -r requirements.txt
+          python -m pip install "pyinstaller>=6.10,<7"
 
-      - name: MSBTS fuer Windows bauen
-        shell: cmd
+      - name: MSBTS.exe bauen
+        shell: pwsh
         run: |
-          call BUILD_MSBTS_WINDOWS_COMPACT.bat
+          python -m PyInstaller launcher.py `
+            --name MSBTS `
+            --noconfirm `
+            --clean `
+            --windowed `
+            --onefile `
+            --paths src `
+            --distpath dist_win `
+            --workpath build_win/work `
+            --specpath build_win/spec `
+            --icon "$PWD/src/fts/resources/msbts_app_icon.ico" `
+            --add-data "$PWD/src/fts/resources;fts/resources" `
+            --add-data "$PWD/src/fts/gui/assets;fts/gui/assets" `
+            --add-data "$PWD/src/fts/gui/styles;fts/gui/styles" `
+            --hidden-import PySide6.QtPrintSupport `
+            --hidden-import PySide6.QtSvg `
+            --collect-all pypdf
 
-      - name: Build-Dateien anzeigen
-        shell: cmd
+          if (!(Test-Path "dist_win/MSBTS.exe")) {
+            throw "MSBTS.exe wurde nicht erzeugt."
+          }
+
+      - name: Inno Setup installieren
+        shell: pwsh
         run: |
-          echo ===== DIST =====
-          dir dist_win /s
+          choco install innosetup --yes --no-progress
 
-      - name: Windows-Version bereitstellen
+      - name: Windows-Installer bauen
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+
+          if (!(Test-Path $iscc)) {
+            $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          }
+
+          if (!(Test-Path $iscc)) {
+            throw "Inno Setup wurde nicht gefunden."
+          }
+
+          & $iscc MSBTS_SETUP.iss
+
+          if (!(Test-Path "MSBTS_1.0_Setup.exe")) {
+            throw "MSBTS_1.0_Setup.exe wurde nicht erzeugt."
+          }
+
+      - name: Portable ZIP erstellen
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path MSBTS_Windows_Compact | Out-Null
+          Copy-Item dist_win/MSBTS.exe MSBTS_Windows_Compact/MSBTS.exe
+
+          @"
+          MSBTS 1.0 - Windows
+
+          Start:
+          MSBTS.exe doppelklicken.
+
+          Python ist auf dem Ziel-PC nicht erforderlich.
+          "@ | Set-Content -Encoding UTF8 MSBTS_Windows_Compact/README.txt
+
+          Compress-Archive `
+            -Path MSBTS_Windows_Compact/* `
+            -DestinationPath MSBTS_1.0_WINDOWS_COMPACT.zip `
+            -Force
+
+      - name: Windows-Dateien bereitstellen
         uses: actions/upload-artifact@v4
         with:
-          name: MSBTS-1.0-Windows
-          path: dist_win/
+          name: MSBTS-1.0-Windows-Installer
+          path: |
+            MSBTS_1.0_Setup.exe
+            MSBTS_1.0_WINDOWS_COMPACT.zip
           if-no-files-found: error
